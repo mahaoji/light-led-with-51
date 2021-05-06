@@ -1,0 +1,9 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\uart1.obj",
+".\Objects\uart2.obj",
+".\Objects\led_task.obj",
+".\Objects\Ref_Sys.obj",
+".\Objects\wifi.obj" 
+TO ".\Objects\wifi+led" 
+PRINT(".\Listings\wifi+led.m51") RAMSIZE(256) 

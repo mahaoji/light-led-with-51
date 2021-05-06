@@ -1,0 +1,110 @@
+C51 COMPILER V9.60.0.0   WIFI                                                              01/10/2021 10:06:46 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE WIFI
+OBJECT MODULE PLACED IN .\Objects\wifi.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE wifi.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\wifi
+                    -.lst) TABS(2) OBJECT(.\Objects\wifi.obj)
+
+line level    source
+
+   1          #include <led_task.h>
+   2          #include <uart2.h>
+   3          #include <intrins.h>
+   4          
+   5          void delays(unsigned int m);
+   6          
+   7          
+   8          void wifistart(void)
+   9          {unsigned char i; 
+  10   1        while (!checkok()){
+  11   2          Uart2SendStr("AT\r\n");
+  12   2          delays(50);
+  13   2          }
+  14   1          EA=0;
+  15   1          for (i=0;i<=5;i++) WS2812WR(120,0,120);
+  16   1          EA=1;
+  17   1          
+  18   1            
+  19   1          while (!checkok()){
+  20   2          Uart2SendStr("AT+CWMODE=1\r\n");
+  21   2          delays(50);
+  22   2          }
+  23   1          EA=0;
+  24   1          for (i=0;i<=7;i++) WS2812WR(120,0,120);
+  25   1          EA=1;
+  26   1      }
+  27          
+  28          void wificonnect(char * name,char * password)
+  29          {unsigned char i; 
+  30   1        while (!checkok()){
+  31   2          Uart2SendStr("AT+CWJAP=\"");
+  32   2          Uart2SendStr(name);
+  33   2          Uart2SendStr("\",\"");
+  34   2          Uart2SendStr(password);
+  35   2          Uart2SendStr("\"\r\n");
+  36   2          delays(1000);
+  37   2          }
+  38   1          EA=0;
+  39   1          for (i=0;i<=9;i++) WS2812WR(120,0,120);
+  40   1          EA=1;
+  41   1      }
+  42          
+  43          void wificipstart(char *ip)
+  44          {unsigned char i; 
+  45   1          while (!checkok()){
+  46   2          Uart2SendStr("\"AT+CIPSTART=\"TCP\",\"");
+  47   2          Uart2SendStr(ip);
+  48   2          Uart2SendStr("\r\n");
+  49   2          delays(500);
+  50   2          }
+  51   1          EA=0;
+  52   1          for (i=0;i<=11;i++) WS2812WR(120,0,120);
+  53   1          EA=1;
+  54   1      }
+C51 COMPILER V9.60.0.0   WIFI                                                              01/10/2021 10:06:46 PAGE 2   
+
+  55          
+  56          void wifisend(char *msg)
+  57          {
+  58   1        while (!checkok()){
+  59   2        Uart2SendStr("AT+CIPSEND=8\r\n");
+  60   2        delays(50);
+  61   2        }
+  62   1        while (!checkok()){
+  63   2        Uart2SendMsg(msg);
+  64   2        delays(50);
+  65   2        }
+  66   1      }
+  67          
+  68          
+  69          
+  70          void delays(unsigned int m)
+  71          {
+  72   1        do{
+  73   2          unsigned char i, j;
+  74   2      
+  75   2          _nop_();
+  76   2          _nop_();
+  77   2          i = 15;
+  78   2          j = 90;
+  79   2          do
+  80   2          {
+  81   3            while (--j);
+  82   3          } while (--i);
+  83   2        } while (--m);
+  84   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    350    ----
+   CONSTANT SIZE    =     77    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      17
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

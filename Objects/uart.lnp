@@ -1,0 +1,7 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\uart1.obj",
+".\Objects\uart2.obj",
+".\Objects\led_task.obj" 
+TO ".\Objects\uart" 
+PRINT(".\Listings\uart.m51") RAMSIZE(256) 

@@ -1,0 +1,174 @@
+C51 COMPILER V9.60.0.0   LED_TASK                                                          11/21/2020 19:56:26 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE LED_TASK
+OBJECT MODULE PLACED IN .\Objects\led_task.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE led_task.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -led_task.lst) TABS(2) OBJECT(.\Objects\led_task.obj)
+
+line level    source
+
+   1          #ifndef _LED_c
+   2          #define _LED_c
+   3          
+   4          #endif
+   5          
+   6          #include <STC8.H>
+   7          #include <intrins.h>
+   8          #include "UART1.h"
+   9          #include "led_task.h"
+  10          #include "Char.h"
+  11          
+  12          #define Fosc 11059200
+  13          
+  14          sbit DO = P1^6;//数据输出口口
+  15          
+  16            ColorState_e  color;
+  17          
+  18          unsigned char state = 0;
+  19          unsigned char color_buf[3];
+  20          
+  21          void delay1us()
+  22          {
+  23   1          unsigned char a;
+  24   1          for(a=3;a>0;a--);
+  25   1      }
+  26          
+  27          /**目前测试STC15系列9～30MHz整得成**/
+  28          /**适当调整_NOP_(),最低8MHz也整得成***/
+  29          /*调整Re、Gr、Bl的比例可搭配出各种颜色*/
+  30          /********0～255,共256级亮度 *********/
+  31          /*****调整数字大小可调整色调及亮度*****/
+  32          //括号内分别代表（红、绿、蓝）数据
+  33          void WS2812WR(unsigned char Re,unsigned char Gr,unsigned char Bl)
+  34          {
+  35   1        unsigned char Color=3,dat,i=8;
+  36   1        DO=0;
+  37   1        //依次输出24bit GRB数据
+  38   1        while(Color--)
+  39   1        {
+  40   2          if(Color==2)dat=Gr;
+  41   2          if(Color==1)dat=Re;
+  42   2          if(Color==0)dat=Bl;
+  43   2          while(i--)
+  44   2          {
+  45   3            if(dat & 0X80)//写1
+  46   3            {
+  47   4              DO=1;delay1us();
+  48   4              DO=0;_nop_();
+  49   4            }
+  50   3            else          //写0
+  51   3            {
+  52   4              DO=1;_nop_();
+  53   4              DO=0;delay1us();
+  54   4            }
+C51 COMPILER V9.60.0.0   LED_TASK                                                          11/21/2020 19:56:26 PAGE 2   
+
+  55   3            dat <<= 1;
+  56   3          }
+  57   2          
+  58   2              i=8;
+  59   2        }
+  60   1      }
+  61          
+  62          void Display_all(unsigned char color){
+  63   1        unsigned char i;
+  64   1        
+  65   1        switch(color){
+  66   2          case COLOR_OFF:
+  67   2            for(i = 0; i < COLOR_NUM; i++){
+  68   3              WS2812WR(0, 0, 0);
+  69   3            }
+  70   2            break;
+  71   2            
+  72   2          case COLOR_RED:
+  73   2            for(i = 0; i < COLOR_NUM; i++){
+  74   3              WS2812WR(200, 0, 0);
+  75   3            }
+  76   2            break;
+  77   2            
+  78   2          case COLOR_BLUE:
+  79   2            for(i = 0; i < COLOR_NUM; i++){
+  80   3              WS2812WR(0, 0, 200);
+  81   3            }
+  82   2            break;
+  83   2            
+  84   2          case COLOR_GREEN:
+  85   2            for(i = 0; i < COLOR_NUM; i++){
+  86   3              WS2812WR(0, 200, 0);
+  87   3            }
+  88   2            break;
+  89   2            
+  90   2          case COLOR_YELLOW:
+  91   2            for(i = 0; i < COLOR_NUM; i++){
+  92   3              WS2812WR(100, 100, 0);
+  93   3            }
+  94   2            break;
+  95   2            
+  96   2          default:
+  97   2            break;
+  98   2        }
+  99   1      }
+ 100          
+ 101          void Display_one_led(unsigned char color){
+ 102   1        
+ 103   1        switch(color){
+ 104   2          case COLOR_OFF:
+ 105   2              WS2812WR(0, 0, 0);
+ 106   2            break;
+ 107   2            
+ 108   2          case COLOR_RED:
+ 109   2              WS2812WR(200, 0, 0);
+ 110   2            break;
+ 111   2            
+ 112   2          case COLOR_BLUE:
+ 113   2              WS2812WR(0, 0, 200);
+ 114   2            break;
+ 115   2            
+ 116   2          case COLOR_GREEN:
+C51 COMPILER V9.60.0.0   LED_TASK                                                          11/21/2020 19:56:26 PAGE 3   
+
+ 117   2              WS2812WR(0, 200, 0);
+ 118   2            break;
+ 119   2            
+ 120   2          case COLOR_YELLOW:
+ 121   2              WS2812WR(100, 100, 0);
+ 122   2            break;
+ 123   2            
+ 124   2          default:
+ 125   2            break;
+ 126   2        }
+ 127   1      }
+ 128          
+ 129          void Display_char(unsigned char character){
+ 130   1        unsigned char i;
+ 131   1        for(i = 0; i < 8; i++){
+ 132   2          unsigned char display_buf = character_table[character][i];
+ 133   2          unsigned char j;
+ 134   2          for(j = 0; j < 8; j++){
+ 135   3            if((display_buf >> j) & 0x01) Display_one_led(color);
+ 136   3            else Display_one_led(COLOR_OFF);
+ 137   3          }
+ 138   2        }
+ 139   1      }
+ 140          
+ 141          void Display_edge(){
+ 142   1        unsigned char i;
+ 143   1        for(i = 0; i < 24; i++){
+ 144   2          Display_one_led(color);
+ 145   2        }
+ 146   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    397    ----
+   CONSTANT SIZE    =    136    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

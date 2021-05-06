@@ -1,0 +1,97 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              11/21/2020 19:56:25 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <uart1.h>
+   2          #include <intrins.h>
+   3          #include <stc8.h>
+   4          #include <uart2.h>
+   5          #include <led_task.h>
+   6          #include <Ref_Sys.h>
+   7          #include <wifi.h>
+   8          
+   9          
+  10          sbit DO = P1^6;//数据输出
+  11          sbit key = P1^7;
+  12          sbit gnd = P0^0;
+  13          unsigned char msg[8];
+  14          
+  15          void main()
+  16          {   
+  17   1          unsigned char i;
+  18   1          unsigned char j;
+  19   1          Uart1Init();
+  20   1          Uart2Init();
+  21   1          IE2=0x01;      // open uart2 interrupt
+  22   1          ES=1;          // open uart1 interrupt
+  23   1          EA=1;          // open interrupt
+  24   1      
+  25   1      
+  26   1          msg[0] = 0x7a;    //  帧首位
+  27   1          msg[1] = 0x01;    //  裁判系统01号
+  28   1      
+  29   1        color=COLOR_RED;
+  30   1        
+  31   1          EA=0;
+  32   1          for (i=0;i<=3;i++) WS2812WR(120,0,120);
+  33   1          EA=1;
+  34   1          wifistart();
+  35   1          wificonnect("RM_Server","12345678");
+  36   1          wificipstart("192.168.1.101\",7777");
+  37   1          
+  38   1          delays(500);
+  39   1          
+  40   1          Display_char(10); 
+  41   1          Display_edge();
+  42   1          
+  43   1          sendmop();
+  44   1          
+  45   1          
+  46   1          while(1){
+  47   2          if (readflag2 == 2 && checkRec() ) 
+  48   2            {
+  49   3            readflag2=0;
+  50   3            for ( j=0;j<8;j++) Uart1Send(buffer2[j]); 
+  51   3            }
+  52   2          if (readflag1 == 2)
+  53   2          {
+  54   3            readflag1=0;
+C51 COMPILER V9.60.0.0   MAIN                                                              11/21/2020 19:56:25 PAGE 2   
+
+  55   3            Display_char(buffer1);
+  56   3            sendnum(buffer1);
+  57   3          
+  58   3          }
+  59   2            
+  60   2          
+  61   2          delays(10);
+  62   2          }
+  63   1          
+  64   1          
+  65   1          
+  66   1      }
+  67          
+  68          
+  69          
+  70          
+  71          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    183    ----
+   CONSTANT SIZE    =     39    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,78 @@
+C51 COMPILER V9.60.0.0   UART1                                                             11/21/2020 19:56:25 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE UART1
+OBJECT MODULE PLACED IN .\Objects\uart1.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE uart1.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\uar
+                    -t1.lst) TABS(2) OBJECT(.\Objects\uart1.obj)
+
+line level    source
+
+   1          #include <intrins.h>
+   2          #include <stc8.h>
+   3          
+   4          
+   5          bit busy1=0;
+   6          char wptr1=0;
+   7          char buffer1;
+   8          char readflag1=0;    //   =1 is reading    =0 havecheck =2  have read not check
+   9          
+  10          void Uart1Init(void)
+  11          {
+  12   1        SCON = 0x50;
+  13   1        AUXR |= 0x15;
+  14   1        T2L = 0xE8;
+  15   1        T2H = 0xFF;
+  16   1        wptr1 = 0x00;
+  17   1        busy1 = 0;
+  18   1      }
+  19          
+  20          void Uart1Isr() interrupt 4
+  21          {
+  22   1        unsigned char s=SBUF;
+  23   1          if (TI)
+  24   1          {
+  25   2              TI=0;
+  26   2              busy1=0;
+  27   2          }
+  28   1          if (RI)
+  29   1          {
+  30   2              RI=0;
+  31   2              
+  32   2              if (readflag1 == 1  && s<=10)  {buffer1=s;  readflag1=2;}
+  33   2              if (readflag1 == 0  && s=='@')   {readflag1=1;}
+  34   2          }
+  35   1      }
+  36          
+  37          void Uart1Send(char dat)
+  38          {
+  39   1          while(busy1);
+  40   1          busy1 = 1;
+  41   1          SBUF = dat;
+  42   1      }
+  43          
+  44          void Uart1SendStr(char *p)
+  45          {
+  46   1          while(*p)
+  47   1          {
+  48   2              Uart1Send(*p++);
+  49   2          }
+  50   1      }
+  51          
+  52          
+
+
+C51 COMPILER V9.60.0.0   UART1                                                             11/21/2020 19:56:25 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    144    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
